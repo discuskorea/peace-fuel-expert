@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PEACE-FUEL 홈 매니저</title>
+    <title>PEACE-FUEL 마스터</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -33,10 +33,15 @@
         .header {
             background: var(--primary);
             color: white;
-            padding: 25px 20px;
+            padding: 15px 20px 25px 20px; /* 위쪽 여백 축소 */
             text-align: center;
             border-bottom-left-radius: 25px;
             border-bottom-right-radius: 25px;
+        }
+        .header h1 {
+            margin-top: 5px; /* h1 기본 마진 축소 */
+            margin-bottom: 15px;
+            font-size: 1.8em;
         }
         .class-badge {
             background: rgba(255,255,255,0.2);
@@ -205,7 +210,7 @@
 
 <div class="app-container">
     <div class="header">
-        <h1>PEACE-FUEL 홈 매니저</h1>
+        <h1>PEACE-FUEL 마스터</h1>
         <div class="class-badge" id="classNameDisplay">🏫 7반</div>
         <br>
         <select class="name-select" id="studentSelect">
@@ -336,13 +341,13 @@
             select.appendChild(option);
         });
 
+        // 🚨 중요: 7반 기존 학생들의 데이터를 유지하기 위해 로컬 스토리지 키값을 원본 그대로 사용합니다.
         const savedName = localStorage.getItem('peaceFuelName');
         if (savedName && STUDENT_LIST.includes(savedName)) {
             select.value = savedName;
             select.disabled = true; 
         }
 
-        // 이름 선택 변경 시 내 누적 점수 실시간 갱신 이벤트
         select.addEventListener('change', updateMyScoreDisplay);
 
         const today = new Date().getDay();
@@ -422,7 +427,6 @@
         input.value = "";
     }
 
-    // 💡 공백을 제거하고 정확하게 내 점수를 찾는 무결점 매칭 함수
     function updateMyScoreDisplay() {
         const rawName = document.getElementById('studentSelect').value || localStorage.getItem('peaceFuelName') || "";
         const selectedName = rawName.trim();
@@ -443,7 +447,7 @@
             
             let rankingData = Array.isArray(data.top5) ? data.top5 : [];
             let classTotal = data.classTotal || 0;
-            globalAllUsers = data.allUsers || []; // 전역 변수에 전체 학생 데이터 백업
+            globalAllUsers = data.allUsers || []; 
 
             document.getElementById('classTotalPoints').innerText = classTotal.toLocaleString();
 
@@ -459,7 +463,6 @@
                 `).join('');
             }
             
-            // 랭킹 수집 완료 즉시 내 점수 UI 갱신 실행
             updateMyScoreDisplay();
 
         } catch (error) {
@@ -547,7 +550,6 @@
                 streak = 1;
             }
             localStorage.setItem('peaceFuelStreak', streak);
-
             localStorage.setItem('peaceFuelName', selectedName);
             localStorage.setItem('peaceFuelLastDate', todayStr); 
             
