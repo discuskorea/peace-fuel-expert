@@ -8,11 +8,9 @@
     <link rel="icon" href="icon.jpg">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-/* 7반 */
-
         :root {
-            --primary: #1A5F7A; 
-            --secondary: #E1EEDD;
+            --primary: #2E7D32;
+            --secondary: #E8F5E9;
             --accent: #F9A826;
             --text-dark: #333;
             --bg-light: #f4f7f6;
@@ -101,12 +99,12 @@
         .ticker-move {
             display: inline-block;
             white-space: nowrap;
-            padding-left: 100%; 
-            animation: ticker 30s linear infinite; 
+            padding-left: 100%;
+            animation: ticker 30s linear infinite;
         }
         .ticker-wrap:hover .ticker-move, 
         .ticker-wrap:active .ticker-move {
-            animation-play-state: paused; 
+            animation-play-state: paused;
         }
         @keyframes ticker {
             0% { transform: translateX(0); }
@@ -252,7 +250,7 @@
             background: var(--primary);
             color: white;
         }
-        /* --- 개인정보 동의 팝업창 스타일 --- */
+        
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center;
@@ -274,6 +272,7 @@
     </style>
 </head>
 <body>
+    
 <div id="privacyModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <h3 style="margin-top: 0; color: #2E7D32; font-size: 1.2em;">🔒 개인정보 수집 및 이용 안내</h3>
@@ -296,10 +295,11 @@
         <button id="privacyStartBtn" class="modal-btn" disabled onclick="agreeAndStart()">동의하고 계속하기</button>
     </div>
 </div>
+
 <div class="app-container">
     <div class="header">
         <h1>PEACE-FUEL 에너지 시민</h1>
-        <div class="class-badge" id="classNameDisplay">🏫 7반</div>
+        <div class="class-badge" id="classNameDisplay">🏫 6반</div>
         <br>
         <select class="name-select" id="studentSelect">
             <option value="">-- 내 이름을 선택하세요 --</option>
@@ -318,7 +318,6 @@
             <div style="text-align:center; color:#666; font-size:0.9em; margin-top:15px;">랭킹을 불러오는 중입니다...</div>
         </div>
     </div>
-
     <div class="section">
         <h3>✅ 오늘의 에너지 절약 실천 (최대 3개)</h3>
         <p style="font-size: 0.85em; color: #E65100; margin-bottom: 15px; font-weight: bold;">※ 하루 최대 3개까지만 체크할 수 있습니다.</p>
@@ -397,19 +396,17 @@
 </div>
 
 <script>
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxblUMdkTo3RmRfVmB6HrmlH8LDDpEuC0Dfh_jNg2-L5B6JErLMHcG2NROy87I18q7-/exec";
-
-    // ✅ 클래스 이름을 7반으로 변경했습니다.
-    const CLASS_NAME = "7반"; 
-    
-    // ✅ 7반 명단으로 이 부분을 꼭 수정해주세요.
+    // 💡 새로운 구글 앱스 스크립트 주소로 교체 완료!
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwymxgQ-5Ym-CQYrXI2zT-W9qHxKUGEWQmLnaMUC-rVtKydaFpkC5oiCOPMWg8IJONe/exec";
+                     
+    const CLASS_NAME = "6반"; 
     const STUDENT_LIST = [
-         "1번 권O찬", "2번 김O하", "3번 김O현", "4번 김O율", "5번 김O인",
-         "6번 김O서", "7번 남O서", "8번 박O준", "9번 박O혁", "10번 박O민",
-         "11번 박O온", "12번 손O영", "13번 송O재", "14번 심O혜", "15번 이O찬",
-         "16번 이O연", "17번 이O안", "18번 이O준", "19번 임O원", "20번 장O준",
-         "21번 전O찬", "22번 전O우", "23번 전O우", "24번 최O우", "25번 최O채",
-         "26번 추O호", "27번 하O린", "28번 황O민", "29번 관리자", "30번 관리자",
+         "1번 김O온", "2번 김O겸", "3번 김O훈", "4번 김O휘", "5번 김O아",
+         "6번 김O규", "7번 김O조", "8번 김O아", "9번 김O온", "10번 김O상",
+         "11번 문O영", "12번 박O임", "13번 박O환", "14번 박O수", "15번 변O서",
+         "16번 신O예", "17번 양O준", "18번 엄O수", "19번 이O인", "20번 이O빈",
+         "21번 이O솔", "22번 이O안", "23번 정O호", "24번 정O우", "25번 최O진",
+         "26번 최O형", "27번 최O수", "28번 허O준", "29번 관리자", "30번 관리자",
          "31번 관리자", "32번 관리자"
     ];
 
@@ -427,37 +424,28 @@
     };
 
     function initApp() {
-        // 👇 여기서부터 개인정보 동의 제어 로직 추가 👇
-        
-        // 1. 브라우저에 '동의 기록(privacyConsent_class6)'이 없는지 확인합니다.
         if (!localStorage.getItem('privacyConsent_class6')) {
-            // 동의 기록이 없다면 팝업창(privacyModal)을 화면에 표시합니다.
             document.getElementById('privacyModal').style.display = 'flex';
             
             const scrollArea = document.getElementById('privacyScrollArea');
             const agreeCheck = document.getElementById('privacyAgreeCheck');
             const startBtn = document.getElementById('privacyStartBtn');
             
-            // 2. 사용자가 안내문 내용을 끝까지 스크롤했는지 감지합니다.
             scrollArea.addEventListener('scroll', function() {
-                // 스크롤이 맨 아래(끝)에 도달하면 체크박스의 비활성화(disabled)를 해제합니다.
                 if (scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 5) {
                     agreeCheck.disabled = false;
                 }
             });
             
-            // 3. 기기 화면이 커서 스크롤바 자체가 안 생기는 예외 상황을 처리합니다.
             if (scrollArea.scrollHeight <= scrollArea.clientHeight) {
                 agreeCheck.disabled = false;
             }
 
-            // 4. 체크박스가 체크되면 '동의하고 계속하기' 버튼을 활성화합니다.
             agreeCheck.addEventListener('change', function() {
                 startBtn.disabled = !this.checked;
             });
         }
         
-        // 👆 여기까지 개인정보 동의 제어 로직 끝 👆
         document.getElementById('classNameDisplay').innerText = `🏫 ${CLASS_NAME}`;
         
         const select = document.getElementById('studentSelect');
@@ -468,8 +456,7 @@
             select.appendChild(option);
         });
 
-        // 6반과 겹치지 않도록 class7 로컬 스토리지 키 사용
-        const savedName = localStorage.getItem('peaceFuelName_class7');
+        const savedName = localStorage.getItem('peaceFuelName_class6');
         if (savedName && STUDENT_LIST.includes(savedName)) {
             select.value = savedName;
             select.disabled = true; 
@@ -497,15 +484,12 @@
         renderHistory();
         updateRanking();
     }
-    
-    // 학생들이 '동의하고 계속하기' 버튼을 눌렀을 때 실행되는 함수입니다.
+
     function agreeAndStart() {
-        // 브라우저(localStorage)에 동의 완료 상태('true')를 영구 저장합니다.
         localStorage.setItem('privacyConsent_class6', 'true');
-        
-        // 화면을 덮고 있던 팝업창을 다시 숨깁니다.
         document.getElementById('privacyModal').style.display = 'none';
     }
+
     function setupDiaryFeedback() {
         const textarea = document.getElementById('diaryInput');
         const counter = document.getElementById('charCounter');
@@ -563,7 +547,7 @@
     }
 
     function updateMyScoreDisplay() {
-        const rawName = document.getElementById('studentSelect').value || localStorage.getItem('peaceFuelName_class7') || "";
+        const rawName = document.getElementById('studentSelect').value || localStorage.getItem('peaceFuelName_class6') || "";
         const selectedName = rawName.trim();
         let myPoints = 0;
         
@@ -635,7 +619,7 @@
         }
 
         const todayStr = new Date().toLocaleDateString();
-        const lastSubmitDate = localStorage.getItem('peaceFuelLastDate_class7');
+        const lastSubmitDate = localStorage.getItem('peaceFuelLastDate_class6');
         
         if (lastSubmitDate === todayStr) {
             alert("❌ 오늘은 이미 연료를 충전했습니다. 내일 다시 만나요!");
@@ -681,7 +665,7 @@
 
             if (resData.result === "duplicate") {
                 alert(`🚨 중복 충전 감지!\n\n${resData.message}`);
-                localStorage.setItem('peaceFuelLastDate_class7', todayStr);
+                localStorage.setItem('peaceFuelLastDate_class6', todayStr);
                 return;
             }
 
@@ -690,7 +674,7 @@
                 return;
             }
 
-            let streak = Number(localStorage.getItem('peaceFuelStreak_class7')) || 0;
+            let streak = Number(localStorage.getItem('peaceFuelStreak_class6')) || 0;
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayStr = yesterday.toLocaleDateString();
@@ -700,19 +684,19 @@
             } else {
                 streak = 1;
             }
-            localStorage.setItem('peaceFuelStreak_class7', streak);
-            localStorage.setItem('peaceFuelName_class7', selectedName);
-            localStorage.setItem('peaceFuelLastDate_class7', todayStr); 
+            localStorage.setItem('peaceFuelStreak_class6', streak);
+            localStorage.setItem('peaceFuelName_class6', selectedName);
+            localStorage.setItem('peaceFuelLastDate_class6', todayStr); 
             
             document.getElementById('studentSelect').disabled = true;
             
-            let history = JSON.parse(localStorage.getItem('peaceFuelHistory_class7')) || [];
+            let history = JSON.parse(localStorage.getItem('peaceFuelHistory_class6')) || [];
             history.unshift({ date: todayStr, actions: actionNames, diary: diaryText });
             
             if(history.length > 30) {
                 history = history.slice(0, 30);
             }
-            localStorage.setItem('peaceFuelHistory_class7', JSON.stringify(history));
+            localStorage.setItem('peaceFuelHistory_class6', JSON.stringify(history));
             
             document.querySelectorAll('#checklistContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
             document.getElementById('diaryInput').value = "";
@@ -736,7 +720,7 @@
     }
 
     function renderHistory() {
-        const history = JSON.parse(localStorage.getItem('peaceFuelHistory_class7')) || [];
+        const history = JSON.parse(localStorage.getItem('peaceFuelHistory_class6')) || [];
         const container = document.getElementById('historyContainer');
         const moreBtn = document.getElementById('moreHistoryBtn');
         
