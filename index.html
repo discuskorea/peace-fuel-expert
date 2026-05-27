@@ -1,3 +1,8 @@
+선생님, 맨 처음 올려주셨던 **7반 학생 명단**과 **7반 전용 구글 앱스 스크립트(GAS) API 주소**를 다시 불러와서, 완벽하게 다듬어진 최종 버전에 적용했습니다.
+
+이제 아래 코드를 복사해서 7반 학생들에게 바로 배포하시면 됩니다!
+
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -9,8 +14,8 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --primary: #1A5F7A; 
-            --secondary: #E1EEDD;
+            --primary: #2E7D32;
+            --secondary: #E8F5E9;
             --accent: #F9A826;
             --text-dark: #333;
             --bg-light: #f4f7f6;
@@ -99,12 +104,12 @@
         .ticker-move {
             display: inline-block;
             white-space: nowrap;
-            padding-left: 100%;
-            animation: ticker 30s linear infinite;
+            padding-left: 100%; 
+            animation: ticker 30s linear infinite; 
         }
         .ticker-wrap:hover .ticker-move, 
         .ticker-wrap:active .ticker-move {
-            animation-play-state: paused;
+            animation-play-state: paused; 
         }
         @keyframes ticker {
             0% { transform: translateX(0); }
@@ -272,8 +277,7 @@
     </style>
 </head>
 <body>
-    
-<div id="privacyModal" class="modal-overlay" style="display: none;">
+    <div id="privacyModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <h3 style="margin-top: 0; color: #2E7D32; font-size: 1.2em;">🔒 개인정보 수집 및 이용 안내</h3>
         <p style="font-size: 0.8em; color: #E65100; margin-top: -10px; margin-bottom: 10px;">
@@ -318,6 +322,7 @@
             <div style="text-align:center; color:#666; font-size:0.9em; margin-top:15px;">랭킹을 불러오는 중입니다...</div>
         </div>
     </div>
+
     <div class="section">
         <h3>✅ 오늘의 에너지 절약 실천 (최대 3개)</h3>
         <p style="font-size: 0.85em; color: #E65100; margin-bottom: 15px; font-weight: bold;">※ 하루 최대 3개까지만 체크할 수 있습니다.</p>
@@ -392,14 +397,18 @@
         </div>
         <button id="moreHistoryBtn" class="more-btn" style="display:none;" onclick="toggleHistory()">🔽 나의 실천 기록 더보기</button>
     </div>
-
 </div>
 
 <script>
-    // 💡 새로운 구글 앱스 스크립트 주소로 교체 완료!
+    // 7반 전용 GAS API 주소로 복원
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwymxgQ-5Ym-CQYrXI2zT-W9qHxKUGEWQmLnaMUC-rVtKydaFpkC5oiCOPMWg8IJONe/exec";
-                     
+
+    // 클래스명을 7반으로 변경
     const CLASS_NAME = "7반"; 
+    // 저장소 충돌 방지를 위한 고유 접두사 동적 생성
+    const STORAGE_PREFIX = `peaceFuel_${CLASS_NAME}`;
+
+    // 7반 명렬표로 복원
     const STUDENT_LIST = [
         "1번 권O찬", "2번 김O하", "3번 김O현", "4번 김O율", "5번 김O인",
         "6번 김O서", "7번 남O서", "8번 박O준", "9번 박O혁", "10번 박O민",
@@ -424,9 +433,8 @@
     };
 
     function initApp() {
-        if (!localStorage.getItem('privacyConsent_class6')) {
+        if (!localStorage.getItem(`${STORAGE_PREFIX}_consent`)) {
             document.getElementById('privacyModal').style.display = 'flex';
-            
             const scrollArea = document.getElementById('privacyScrollArea');
             const agreeCheck = document.getElementById('privacyAgreeCheck');
             const startBtn = document.getElementById('privacyStartBtn');
@@ -449,6 +457,9 @@
         document.getElementById('classNameDisplay').innerText = `🏫 ${CLASS_NAME}`;
         
         const select = document.getElementById('studentSelect');
+        // 데이터 로딩 전 섣부른 이름 선택 방지
+        select.disabled = true;
+
         STUDENT_LIST.forEach(name => {
             let option = document.createElement('option');
             option.value = name;
@@ -456,13 +467,26 @@
             select.appendChild(option);
         });
 
-        const savedName = localStorage.getItem('peaceFuelName_class6');
+        const savedName = localStorage.getItem(`${STORAGE_PREFIX}_name`);
         if (savedName && STUDENT_LIST.includes(savedName)) {
             select.value = savedName;
-            select.disabled = true; 
         }
 
         select.addEventListener('change', updateMyScoreDisplay);
+
+        // 추가된 커스텀 규칙 복원 로직 (최신 규칙이 위로 오도록 .reverse() 삭제됨)
+        const customRules = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_customRules`)) || [];
+        const container = document.getElementById('checklistContainer');
+        customRules.forEach(rule => {
+            const newLabel = document.createElement('label');
+            newLabel.className = 'checklist-item custom';
+            newLabel.innerHTML = `
+                <input type="checkbox" value="${rule.value}">
+                <span>${rule.text}</span>
+                <span class="points-tag">+${rule.value}P</span>
+            `;
+            container.insertBefore(newLabel, container.firstChild);
+        });
 
         const today = new Date().getDay();
         const promptData = dailyPrompts[today];
@@ -486,7 +510,7 @@
     }
 
     function agreeAndStart() {
-        localStorage.setItem('privacyConsent_class6', 'true');
+        localStorage.setItem(`${STORAGE_PREFIX}_consent`, 'true');
         document.getElementById('privacyModal').style.display = 'none';
     }
 
@@ -533,21 +557,35 @@
         const ruleText = input.value.trim();
         if (!ruleText) return;
 
+        const fullRuleText = `[우리집] ${ruleText}`;
+        const customRules = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_customRules`)) || [];
+
+        // 커스텀 규칙 중복 추가 방지 로직
+        if (customRules.some(rule => rule.text === fullRuleText)) {
+            alert("이미 추가된 특별 규칙입니다!");
+            input.value = "";
+            return;
+        }
+
         const container = document.getElementById('checklistContainer');
         const newLabel = document.createElement('label');
         newLabel.className = 'checklist-item custom';
         newLabel.innerHTML = `
             <input type="checkbox" value="10">
-            <span>[우리집] ${ruleText}</span>
+            <span>${fullRuleText}</span>
             <span class="points-tag">+10P</span>
         `;
         
         container.insertBefore(newLabel, container.firstChild);
         input.value = "";
+
+        // 새로운 커스텀 규칙 저장
+        customRules.push({ text: fullRuleText, value: 10 });
+        localStorage.setItem(`${STORAGE_PREFIX}_customRules`, JSON.stringify(customRules));
     }
 
     function updateMyScoreDisplay() {
-        const rawName = document.getElementById('studentSelect').value || localStorage.getItem('peaceFuelName_class6') || "";
+        const rawName = document.getElementById('studentSelect').value || localStorage.getItem(`${STORAGE_PREFIX}_name`) || "";
         const selectedName = rawName.trim();
         let myPoints = 0;
         
@@ -559,7 +597,10 @@
     }
 
     async function updateRanking() {
-        if (!GAS_API_URL || GAS_API_URL.includes("여기에")) return;
+        if (!GAS_API_URL || GAS_API_URL.includes("여기에")) {
+            document.getElementById('studentSelect').disabled = false;
+            return;
+        }
         try {
             const response = await fetch(GAS_API_URL + "?class=" + encodeURIComponent(CLASS_NAME));
             const data = await response.json();
@@ -603,12 +644,25 @@
         } catch (error) {
             console.error("데이터 로딩 실패:", error);
             document.getElementById('rankingDisplay').innerHTML = "<div style='text-align:center; color:#666; font-size:0.9em; margin-top:15px;'>데이터를 불러오는 중 오류가 발생했습니다.</div>";
+        } finally {
+            // 로딩 완료 후 내 이름이 저장되지 않은 경우에만 선택창 활성화
+            const savedName = localStorage.getItem(`${STORAGE_PREFIX}_name`);
+            if (!savedName) {
+                document.getElementById('studentSelect').disabled = false;
+            }
         }
     }
 
+    // 학교 교육망 스크립트 차단에 대비한 try-catch 예외 처리 추가
     function fireConfetti() {
-        confetti({ particleCount: 100, angle: 60, spread: 70, origin: { x: 0, y: 1 }, colors: ['#1A5F7A', '#F9A826', '#E1EEDD'] });
-        confetti({ particleCount: 100, angle: 120, spread: 70, origin: { x: 1, y: 1 }, colors: ['#1A5F7A', '#F9A826', '#E1EEDD'] });
+        try {
+            if (typeof confetti !== "undefined") {
+                confetti({ particleCount: 100, angle: 60, spread: 70, origin: { x: 0, y: 1 }, colors: ['#1A5F7A', '#F9A826', '#E1EEDD'] });
+                confetti({ particleCount: 100, angle: 120, spread: 70, origin: { x: 1, y: 1 }, colors: ['#1A5F7A', '#F9A826', '#E1EEDD'] });
+            }
+        } catch (e) {
+            console.warn("학교망 차단 등으로 폭죽 애니메이션을 불러올 수 없지만 정상 진행됩니다.");
+        }
     }
 
     async function saveToday() {
@@ -619,7 +673,7 @@
         }
 
         const todayStr = new Date().toLocaleDateString();
-        const lastSubmitDate = localStorage.getItem('peaceFuelLastDate_class6');
+        const lastSubmitDate = localStorage.getItem(`${STORAGE_PREFIX}_lastDate`);
         
         if (lastSubmitDate === todayStr) {
             alert("❌ 오늘은 이미 연료를 충전했습니다. 내일 다시 만나요!");
@@ -642,11 +696,21 @@
             return;
         }
 
+        // 복사+붙여넣기 꼼수 방지 로직
+        const history = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_history`)) || [];
+        if (history.length > 0 && history[0].diary === diaryText) {
+            alert("⚠️ 어제 작성한 일기 내용과 똑같습니다. 새로운 느낀 점을 정성껏 적어주세요!");
+            return;
+        }
+
         const btn = document.getElementById('saveBtn');
         btn.innerText = "⚡ 연료 충전 중...";
         btn.disabled = true;
 
-        let earnedToday = checkedBoxes.length * 10;
+        // 체크박스 속성값을 활용한 점수 계산 로직
+        let earnedToday = 0;
+        checkedBoxes.forEach(cb => { earnedToday += parseInt(cb.value); });
+        
         let actionNames = Array.from(checkedBoxes).map(cb => cb.nextElementSibling.innerText).join(', ');
 
         try {
@@ -665,7 +729,7 @@
 
             if (resData.result === "duplicate") {
                 alert(`🚨 중복 충전 감지!\n\n${resData.message}`);
-                localStorage.setItem('peaceFuelLastDate_class6', todayStr);
+                localStorage.setItem(`${STORAGE_PREFIX}_lastDate`, todayStr);
                 return;
             }
 
@@ -674,7 +738,7 @@
                 return;
             }
 
-            let streak = Number(localStorage.getItem('peaceFuelStreak_class6')) || 0;
+            let streak = Number(localStorage.getItem(`${STORAGE_PREFIX}_streak`)) || 0;
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayStr = yesterday.toLocaleDateString();
@@ -684,19 +748,19 @@
             } else {
                 streak = 1;
             }
-            localStorage.setItem('peaceFuelStreak_class6', streak);
-            localStorage.setItem('peaceFuelName_class6', selectedName);
-            localStorage.setItem('peaceFuelLastDate_class6', todayStr); 
+            
+            localStorage.setItem(`${STORAGE_PREFIX}_streak`, streak);
+            localStorage.setItem(`${STORAGE_PREFIX}_name`, selectedName);
+            localStorage.setItem(`${STORAGE_PREFIX}_lastDate`, todayStr); 
             
             document.getElementById('studentSelect').disabled = true;
             
-            let history = JSON.parse(localStorage.getItem('peaceFuelHistory_class6')) || [];
             history.unshift({ date: todayStr, actions: actionNames, diary: diaryText });
             
             if(history.length > 30) {
                 history = history.slice(0, 30);
             }
-            localStorage.setItem('peaceFuelHistory_class6', JSON.stringify(history));
+            localStorage.setItem(`${STORAGE_PREFIX}_history`, JSON.stringify(history));
             
             document.querySelectorAll('#checklistContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
             document.getElementById('diaryInput').value = "";
@@ -720,7 +784,7 @@
     }
 
     function renderHistory() {
-        const history = JSON.parse(localStorage.getItem('peaceFuelHistory_class6')) || [];
+        const history = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_history`)) || [];
         const container = document.getElementById('historyContainer');
         const moreBtn = document.getElementById('moreHistoryBtn');
         
@@ -757,3 +821,5 @@
 </script>
 </body>
 </html>
+
+```
